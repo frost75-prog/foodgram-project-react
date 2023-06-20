@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from decouple import Csv, config
@@ -9,19 +10,19 @@ DEBUG = config("DEBUG", cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 INSTALLED_APPS = [
-    #
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #
+
     "rest_framework",
     "rest_framework.authtoken",
     "djoser",
-    # "modeltranslation",
-    #
+
+    "api.apps.ApiConfig",
+    "recipes.apps.RecipesConfig",
     "users.apps.UsersConfig",
 ]
 
@@ -69,16 +70,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",  # noqa: E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",  # noqa: E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",  # noqa: E501
     },
 ]
 
@@ -92,20 +93,17 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "static"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-""" LANGUAGES = (
-    ("ru", "Russian"),
-    ("en", "English"),
-)
-MODELTRANSLATION_DEFAULT_LANGUAGE = "ru"
-MODELTRANSLATION_TRANSLATION_REGISTRY = "foodgram.translation"
-"""
+MAX_LENGTH_USERFIELDS = 150
+MAX_LENGTH_INGREDIENTFIELDS = 200
+REGEX_USER = re.compile(r"^[\w.@+-]+\Z")
+REGEX_COLOR_TAG = re.compile(r"^#([a-fA-F0-9]{6})")
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -114,8 +112,15 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],  # noqa: E501
+    "PAGE_SIZE": 6,
     "SEARCH_PARAM": "name",
 }
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+}
+
+AUTH_USER_MODEL = "users.User"
+
+FILE_NAME = 'shopping.txt'
