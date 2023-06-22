@@ -138,8 +138,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         if Favorite.objects.filter(
-            user=request.user, recipe=self.get_recipe(kwargs['pk'])
-                ).exists():
+            user=request.user,
+            recipe=self.get_recipe(kwargs['pk'])
+        ).exists():
             return Response({'errors': 'Рецепт уже в избранном.'},
                             status=status.HTTP_400_BAD_REQUEST)
         Favorite.objects.create(
