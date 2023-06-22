@@ -3,10 +3,9 @@ from django.core import exceptions as django_exceptions
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 from rest_framework import serializers
-
-from recipes.models import (
-    Favorite, Ingredient, Recipe, RecipeIngredient, Shopping, Tag)
 from users.models import Follow, User
 
 
@@ -24,7 +23,6 @@ class UserReadSerializer(UserSerializer):
     def user(self):
         return self.context['request'].user
 
-    @property
     def is_subscribed(self, obj):
         if (self.context.get('request') and not self.user.is_anonymous):
             return Follow.objects.filter(user=self.user,
@@ -93,8 +91,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name',
-                  'image', 'cooking_time')
+        fields = ('id', 'name', 'image', 'cooking_time', 'slug')
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
@@ -107,14 +104,12 @@ class SubscribeSerializer(serializers.ModelSerializer):
     def user(self):
         return self.context['request'].user
 
-    @property
     def is_subscribed(self, obj):
         return (
             self.user.is_authenticated and Follow.objects.filter(
                 user=self.user, author=obj).exists()
         )
 
-    @property
     def recipes_count(self, obj):
         return obj.recipes.count()
 
@@ -199,17 +194,15 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     def user(self):
         return self.context['request'].user
 
-    @property
     def is_favorited(self, obj):
         return (
             self.user.is_authenticated and Favorite.objects.filter(
                 user=self.user, recipe=obj).exists()
         )
 
-    @property
     def is_in_shopping_cart(self, obj):
         return (
-            self.user.is_authenticated and Shopping.objects.filter(
+            self.user.is_authenticated and ShoppingCart.objects.filter(
                 user=self.user, recipe=obj).exists()
         )
 
@@ -236,7 +229,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'ingredients',
                   'tags', 'image',
-                  'name', 'text',
+                  'name', 'text', 'slug',
                   'cooking_time', 'author')
         extra_kwargs = {
             'ingredients': {'required': True, 'allow_blank': False},
@@ -304,7 +297,5 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    @property
     def to_representation(self, instance):
-        return RecipeReadSerializer(instance,
-                                    context=self.context).data
+        return RecipeReadSerializer(instance, context=self.context).data

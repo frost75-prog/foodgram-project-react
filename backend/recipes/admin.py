@@ -21,18 +21,18 @@ class TagAdmin(admin.ModelAdmin):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'pk', 'name', 'cooking_time', 'text',
-        'image', 'author', 'pub_date'
+        'image', 'author', 'pub_date', 'slug',
     )
     list_editable = (
         'name', 'cooking_time', 'text',
-        'image', 'author'
+        'image', 'author', 'slug',
     )
     list_filter = ('name', 'author', 'tags')
     empty_value_display = '-пусто-'
 
     @admin.display(description='В избранном')
     def in_favorites(self, obj):
-        return obj.favorite_recipe.count()
+        return obj.favorites.count()
 
 
 @admin.register(models.RecipeIngredient)
@@ -47,7 +47,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     list_editable = ('user', 'recipe')
 
 
-@admin.register(models.Shopping)
+@admin.register(models.ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'recipe')
     list_editable = ('user', 'recipe')
