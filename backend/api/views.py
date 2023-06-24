@@ -137,15 +137,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             self.get_recipe(kwargs['pk']),
             data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        if Favorite.objects.filter(
-            user=request.user,
-            recipe=self.get_recipe(kwargs['pk'])
-        ).exists():
-            return Response({'errors': 'Рецепт уже в избранном.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        Favorite.objects.create(
+        _, create = Favorite.objects.get_or_create(
             user=request.user, recipe=self.get_recipe(kwargs['pk']))
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if create:
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({'errors': 'Рецепт уже в избранном.'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     @favorite.mapping.delete
     def delete_favorite(self, request, **kwargs):
@@ -163,14 +160,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             self.get_recipe(kwargs['pk']),
             data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        if ShoppingCart.objects.filter(
-                user=request.user,
-                recipe=self.get_recipe(kwargs['pk'])).exists():
-            return Response({'errors': 'Рецепт уже в списке покупок.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        ShoppingCart.objects.create(
+        _, create = ShoppingCart.objects.get_or_create(
             user=request.user, recipe=self.get_recipe(kwargs['pk']))
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if create:
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({'errors': 'Рецепт уже в списке покупок.'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, **kwargs):

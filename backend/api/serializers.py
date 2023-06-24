@@ -43,7 +43,7 @@ class UserCreateSerializer(UserCreateSerializer):
             'email': {'required': True, 'allow_blank': False},
         }
 
-    def validate(self, obj):
+    def validate_username(self, obj):
         invalid_usernames = ['me', 'set_password',
                              'subscriptions', 'subscribe']
         if self.initial_data.get('username') in invalid_usernames:
