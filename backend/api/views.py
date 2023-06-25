@@ -1,18 +1,18 @@
-from django.db.models import Sum
+from django.db.models import Sum, QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from foodgram.settings import FILE_NAME
 from recipes.models import (
-    Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart, Tag)
+    Favorite, Ingredient, Recipe, ShoppingCart, Tag)
 from users.models import Follow, User
 
-from .filters import RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
@@ -27,6 +27,11 @@ from .serializers import (
     UserCreateSerializer,
     UserReadSerializer,
 )
+
+
+class IngredientsAndTagsMixin:
+    permission_classes = (AllowAny,)
+    pagination_class = None
 
 
 class UserViewSet(mixins.CreateModelMixin,
@@ -66,8 +71,8 @@ class UserViewSet(mixins.CreateModelMixin,
             permission_classes=(IsAuthenticated,),
             pagination_class=CustomPagination)
     def subscriptions(self, request):
-        queryset = self.request.user.follower.select_related(
-            'following').prefetch_related('following__recipe')
+        queryset = self.request.user.follower.prefetch_related(
+            'follower', 'following')
         page = self.paginate_queryset(queryset)
         serializer = SubscriptionsSerializer(page, many=True,
                                              context={'request': request})
@@ -86,7 +91,7 @@ class UserViewSet(mixins.CreateModelMixin,
                         status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
-    def delete_subscribe(self, request, **kwargs):
+    def unsubscribe(self, request, **kwargs):
         get_object_or_404(
             Follow, user=request.user,
             author=self.get_user(kwargs['pk'])).delete()
@@ -94,24 +99,26 @@ class UserViewSet(mixins.CreateModelMixin,
                         status=status.HTTP_204_NO_CONTENT)
 
 
-class IngredientViewSet(mixins.ListModelMixin,
-                        mixins.RetrieveModelMixin,
-                        viewsets.GenericViewSet):
+class IngredientViewSet(
+        IngredientsAndTagsMixin,
+        viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
-    permission_classes = (AllowAny, )
     serializer_class = IngredientSerializer
-    pagination_class = None
-    filter_backends = (filters.SearchFilter, )
-    search_fields = ('^name', )
+    filterset_class = IngredientFilter
 
 
-class TagViewSet(mixins.ListModelMixin,
-                 mixins.RetrieveModelMixin,
-                 viewsets.GenericViewSet):
-    permission_classes = (AllowAny, )
+class TagViewSet(
+        IngredientsAndTagsMixin,
+        viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    pagination_class = None
+
+
+class IngredientsInFile(QuerySet):
+    def ingredients(self, request):
+        return request.user.shopping.favorites.values('ingredient').annotate(
+            total_amount=Sum('amount')).values_list(
+            'ingredient__name', 'total_amount', 'ingredient__measurement_unit')
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -135,7 +142,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, **kwargs):
         serializer = RecipeSerializer(
             self.get_recipe(kwargs['pk']),
-            data=request.data, context={"request": request})
+            data=request.data,
+            context={"request": request})
         serializer.is_valid(raise_exception=True)
         _, create = Favorite.objects.get_or_create(
             user=request.user, recipe=self.get_recipe(kwargs['pk']))
@@ -158,7 +166,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, **kwargs):
         serializer = RecipeSerializer(
             self.get_recipe(kwargs['pk']),
-            data=request.data, context={"request": request})
+            data=request.data,
+            context={"request": request})
         serializer.is_valid(raise_exception=True)
         _, create = ShoppingCart.objects.get_or_create(
             user=request.user, recipe=self.get_recipe(kwargs['pk']))
@@ -178,15 +187,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'],
             permission_classes=(IsAuthenticated,))
-    def download_shopping_cart(self, request, **kwargs):
-        ingredients = (
-            RecipeIngredient.objects
-            .filter(recipe__shopping_recipe__user=request.user)
-            .values('ingredient')
-            .annotate(total_amount=Sum('amount'))
-            .values_list('ingredient__name', 'total_amount',
-                         'ingredient__measurement_unit')
-        )
+    def download_shopping_cart(self, **kwargs):
+        ingredients = IngredientsInFile.as_manager()
         file_list = []
         [file_list.append(
             '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]

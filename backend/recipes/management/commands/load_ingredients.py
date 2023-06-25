@@ -10,7 +10,7 @@ from recipes.models import Ingredient
 class Command(BaseCommand):
     """Load ingredients to DB"""
 
-    FILE = '../data/ingredients.csv'
+    FILE = 'data/ingredients.csv'
 
     def handle(self, *args, **kwargs):
         path = BASE_DIR / self.FILE
