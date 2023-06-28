@@ -1,32 +1,23 @@
-from django.db.models import Sum, QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from foodgram.settings import FILE_NAME
-from recipes.models import (
-    Favorite, Ingredient, Recipe, ShoppingCart, Tag)
-from users.models import Follow, User
-
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (
-    IngredientSerializer,
-    RecipeCreateSerializer,
-    RecipeReadSerializer,
-    RecipeSerializer,
-    SetPasswordSerializer,
-    SubscribeAuthorSerializer,
-    SubscriptionsSerializer,
-    TagSerializer,
-    UserCreateSerializer,
-    UserReadSerializer,
-)
+from .recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from .recipes.serializers import (IngredientSerializer, RecipeCreateSerializer,
+                                  RecipeReadSerializer, RecipeSerializer,
+                                  TagSerializer, UserReadSerializer)
+from .serializers import SubscribeAuthorSerializer, SubscriptionsSerializer
+from .users.models import Follow, User
+from .users.serializers import SetPasswordSerializer, UserCreateSerializer
 
 
 class IngredientsAndTagsMixin:
@@ -114,13 +105,6 @@ class TagViewSet(
     serializer_class = TagSerializer
 
 
-class IngredientsInFile(QuerySet):
-    def ingredients(self, request):
-        return request.user.shopping.favorites.values('ingredient').annotate(
-            total_amount=Sum('amount')).values_list(
-            'ingredient__name', 'total_amount', 'ingredient__measurement_unit')
-
-
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
@@ -187,8 +171,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'],
             permission_classes=(IsAuthenticated,))
-    def download_shopping_cart(self, **kwargs):
-        ingredients = IngredientsInFile.as_manager()
+    def download_shopping_cart(self, request, **kwargs):
+        ingredients = ShoppingCart.manager.ingredients(request)
         file_list = []
         [file_list.append(
             '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]

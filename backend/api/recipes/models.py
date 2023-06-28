@@ -1,16 +1,23 @@
 from dataclasses import asdict
 
-from django.core.validators import (
-    MinValueValidator,
-    RegexValidator,
-    validate_image_file_extension,
-    validate_unicode_slug,
-)
+from django.core.validators import (MinValueValidator, RegexValidator,
+                                    validate_image_file_extension,
+                                    validate_unicode_slug)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from foodgram.settings import MAX_LENGTH_INGREDIENTFIELDS, REGEX_COLOR_TAG
-from users.models import User
+from api.users.models import User
+
+
+class IngredientsQuerySet(models.QuerySet):
+    def ingredients(self, request):
+        return request.user.shopping.favorites.values('ingredient').annotate(
+            total_amount=models.Sum('amount')).values_list(
+            'ingredient__name', 'total_amount', 'ingredient__measurement_unit')
+
+
+IngredientsManager = IngredientsQuerySet.as_manager()
 
 
 class Ingredient(models.Model):
@@ -205,6 +212,8 @@ class ShoppingCart(models.Model):
         on_delete=models.CASCADE,
         verbose_name=_('Список покупок')
     )
+
+    manager = IngredientsManager
 
     class Meta:
         verbose_name = _('Список покупок')

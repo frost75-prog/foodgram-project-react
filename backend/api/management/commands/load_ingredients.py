@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from progress.bar import IncrementalBar
 
 from foodgram.settings import BASE_DIR
-from recipes.models import Ingredient
+from api.recipes.models import Ingredient
 
 
 class Command(BaseCommand):
