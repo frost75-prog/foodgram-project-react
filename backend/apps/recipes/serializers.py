@@ -2,7 +2,7 @@ from django.db import transaction
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
-from apps.users.serializers import UserReadSerializer
+from apps.users.serializers import SubscribeSerializer, UserReadSerializer
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
 
@@ -161,3 +161,17 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return RecipeReadSerializer(instance, context=self.context).data
+
+
+class SubscriptionsSerializer(SubscribeSerializer):
+    """[GET] Список авторов на которых подписан пользователь."""
+    recipes = serializers.SerializerMethodField()
+
+    def get_recipes(self, obj):
+        request = self.context['request']
+        limit = request.GET.get('recipes_limit')
+        recipes = obj.recipes.all()
+        if limit:
+            recipes = recipes[:int(limit)]
+        serializer = RecipeSerializer(recipes, many=True, read_only=True)
+        return serializer.data
