@@ -2,7 +2,7 @@ from django.db import transaction
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
-from api.users.serializers import UserReadSerializer
+from apps.users.serializers import UserReadSerializer
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
 

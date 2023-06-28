@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from .recipes.serializers import RecipeSerializer
-from .users.models import Follow, User
+from apps.recipes.serializers import RecipeSerializer
+from apps.users.models import Follow, User
 
 
 class SubscribeSerializer(serializers.ModelSerializer):

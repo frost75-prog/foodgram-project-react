@@ -1,23 +1,23 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from foodgram.settings import FILE_NAME
+from apps.recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from apps.recipes.serializers import (IngredientSerializer,
+                                      RecipeCreateSerializer,
+                                      RecipeReadSerializer, RecipeSerializer,
+                                      TagSerializer, UserReadSerializer)
+from apps.users.models import Follow, User
+from apps.users.serializers import SetPasswordSerializer, UserCreateSerializer
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
-from .recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from .recipes.serializers import (IngredientSerializer, RecipeCreateSerializer,
-                                  RecipeReadSerializer, RecipeSerializer,
-                                  TagSerializer, UserReadSerializer)
 from .serializers import SubscribeAuthorSerializer, SubscriptionsSerializer
-from .users.models import Follow, User
-from .users.serializers import SetPasswordSerializer, UserCreateSerializer
 
 
 class IngredientsAndTagsMixin:

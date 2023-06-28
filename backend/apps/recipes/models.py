@@ -7,7 +7,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from foodgram.settings import MAX_LENGTH_INGREDIENTFIELDS, REGEX_COLOR_TAG
-from api.users.models import User
+from apps.users.models import User
 
 
 class IngredientsQuerySet(models.QuerySet):
@@ -15,9 +15,6 @@ class IngredientsQuerySet(models.QuerySet):
         return request.user.shopping.favorites.values('ingredient').annotate(
             total_amount=models.Sum('amount')).values_list(
             'ingredient__name', 'total_amount', 'ingredient__measurement_unit')
-
-
-IngredientsManager = IngredientsQuerySet.as_manager()
 
 
 class Ingredient(models.Model):
@@ -213,7 +210,7 @@ class ShoppingCart(models.Model):
         verbose_name=_('Список покупок')
     )
 
-    manager = IngredientsManager
+    manager = IngredientsQuerySet.as_manager()
 
     class Meta:
         verbose_name = _('Список покупок')
