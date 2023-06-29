@@ -84,7 +84,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             data=request.data,
             context={"request": request})
         serializer.is_valid(raise_exception=True)
-        _, create = ShoppingCart.objects.get_or_create(
+        _, create = ShoppingCart.manager.get_or_create(
             user=request.user, recipe=self.get_recipe(kwargs['pk']))
         if create:
             return Response(serializer.data, status=status.HTTP_201_CREATED)

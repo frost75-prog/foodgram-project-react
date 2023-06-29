@@ -12,9 +12,12 @@ from apps.users.models import User
 
 class IngredientsQuerySet(models.QuerySet):
     def ingredients(self, request):
-        return request.user.shopping.favorites.values('ingredient').annotate(
-            total_amount=models.Sum('amount')).values_list(
-            'ingredient__name', 'total_amount', 'ingredient__measurement_unit')
+        return (RecipeIngredient.objects
+                .filter(recipe__shopping_recipe__user=request.user)
+                .values('ingredient')
+                .annotate(total_amount=models.Sum('amount'))
+                .values_list('ingredient__name', 'total_amount',
+                             'ingredient__measurement_unit'))
 
 
 class Ingredient(models.Model):
