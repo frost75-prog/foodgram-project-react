@@ -3,7 +3,7 @@ from django.core import exceptions as django_exceptions
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from .models import Follow, User
+from apps.users.models import Follow, User
 
 
 class UserReadSerializer(UserSerializer):

@@ -4,12 +4,12 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from apps.recipes.serializers import (SubscriptionsSerializer,
-                                      UserReadSerializer)
+from apps.users.models import Follow, User
 from .pagination import CustomPagination
-from .models import Follow, User
-from .serializers import (SetPasswordSerializer, SubscribeAuthorSerializer,
-                          UserCreateSerializer)
+from .recipes_serializers import SubscriptionsSerializer, UserReadSerializer
+from .users_serializers import (SetPasswordSerializer,
+                                SubscribeAuthorSerializer,
+                                UserCreateSerializer)
 
 
 class UserViewSet(mixins.CreateModelMixin,

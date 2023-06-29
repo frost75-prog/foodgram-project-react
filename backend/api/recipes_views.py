@@ -6,14 +6,14 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from apps.recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from foodgram.settings import FILE_NAME
-from ..users.pagination import CustomPagination
 from .filters import IngredientFilter, RecipeFilter
-from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (IngredientSerializer, RecipeCreateSerializer,
-                          RecipeReadSerializer, RecipeSerializer,
-                          TagSerializer)
+from .recipes_serializers import (IngredientSerializer, RecipeCreateSerializer,
+                                  RecipeReadSerializer, RecipeSerializer,
+                                  TagSerializer)
 
 
 class IngredientsAndTagsMixin:
