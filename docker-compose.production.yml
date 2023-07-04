@@ -31,7 +31,7 @@ services:
     image: frost75/foodgram_gateway
     env_file: .env
     ports:
-      - 8000:80
+      - 8000:8000
     volumes:
       - static:/static/
       - media:/app/media/
