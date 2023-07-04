@@ -155,5 +155,5 @@ sudo docker-compose exec backend python manage.py loaddata fixtures.json
 Ознакомиться с документацией по проекту можно по адресу: http://frost.sytes.net/api/docs/
 
 
-## Author
-# Kirill Morozov
+## Автор
+# Кирилл Морозов
