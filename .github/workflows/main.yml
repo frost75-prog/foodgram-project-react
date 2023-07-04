@@ -3,7 +3,7 @@ name: Main foodgram workflow
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   tests:
@@ -167,4 +167,3 @@ jobs:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: Деплой foodgram успешно выполнен!
-        
