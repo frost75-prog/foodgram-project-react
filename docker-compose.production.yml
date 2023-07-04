@@ -19,6 +19,8 @@ services:
     volumes:
       - static:/app/static
       - media:/app/media
+    depends_on:
+      - db
 
   frontend:
     image: frost75/foodgram_frontend
@@ -26,6 +28,8 @@ services:
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static/
+    depends_on:
+      - backend
 
   gateway:
     image: frost75/foodgram_gateway
@@ -35,3 +39,6 @@ services:
     volumes:
       - static:/static/
       - media:/app/media/
+    depends_on:
+      - frontend
+      - backend
