@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = ("SECRET_KEY")
 DEBUG = True
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(',')
+ALLOWED_HOSTS = str(os.environ.get("ALLOWED_HOSTS")).split(',')
 
 INSTALLED_APPS = [
     "django.contrib.admin",
