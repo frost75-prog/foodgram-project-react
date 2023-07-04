@@ -24,7 +24,7 @@ services:
 
   frontend:
     image: frost75/foodgram_frontend
-    command: cp -r /app/result_build/. /static/
+    command: cp -r /app/build/. /static/
     volumes:
       - static:/static/
     depends_on:
@@ -34,11 +34,10 @@ services:
     image: frost75/foodgram_gateway
     env_file: .env
     ports:
-      - 80:80
+      - 8000:80
     volumes:
       - static:/var/html/static/
       - media:/var/html/media/
-      - frontend:/usr/share/nginx/html/
     depends_on:
       - frontend
       - backend
