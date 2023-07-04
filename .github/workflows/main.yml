@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:13.10
         env:
-          POSTGRES_USER: django_user
-          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_USER: foodgram_user
+          POSTGRES_PASSWORD: foodgrampassword
           POSTGRES_DB: foodgram
         ports:
           - 5432:5432
@@ -32,8 +32,8 @@ jobs:
         pip install -r ./backend/requirements.txt
     - name: Test with flake8 and django tests
       env:
-        POSTGRES_USER: django_user
-        POSTGRES_PASSWORD: mysecretpassword
+        POSTGRES_USER: foodgram_user
+        POSTGRES_PASSWORD: foodgrampassword
         POSTGRES_DB: foodgram
         DB_HOST: 127.0.0.1
         DB_PORT: 5432
@@ -119,7 +119,7 @@ jobs:
       - name: Push to DockerHub
         uses: docker/build-push-action@v4
         with:
-          context: ./nginx/
+          context: ./infra/
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_gateway:latest
 
