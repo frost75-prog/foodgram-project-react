@@ -9,7 +9,7 @@ from apps.recipes.models import Ingredient
 class Command(BaseCommand):
     """Load ingredients to DB"""
 
-    FILE = '/var/data/ingredients.csv'
+    FILE = '/var/docs/ingredients.csv'
 
     def handle(self, *args, **kwargs):
         total = 0
