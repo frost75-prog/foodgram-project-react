@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -115,12 +116,18 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],  # noqa: E501
     "DEFAULT_PAGINATION_CLASS": "api.pagination.CustomPagination",
     "PAGE_SIZE": 6,
     "SEARCH_PARAM": "name",
+}
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("JWT",),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
 DJOSER = {
@@ -141,6 +148,6 @@ DJOSER = {
     }
 }
 
-AUTH_USER_MODEL = "apps.users.User"
+AUTH_USER_MODEL = "apps.users.model.User"
 
 FILE_NAME = "shopping.txt"
