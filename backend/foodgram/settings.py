@@ -148,6 +148,6 @@ DJOSER = {
     }
 }
 
-AUTH_USER_MODEL = "apps.users.model.User"
+AUTH_USER_MODEL = "users.User"
 
 FILE_NAME = "shopping.txt"
