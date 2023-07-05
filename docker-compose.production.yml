@@ -24,8 +24,9 @@ services:
 
   frontend:
     image: frost75/foodgram_frontend
+    command: cp -r /app/build/. /static/
     volumes:
-      - static:/static/result_build
+      - static:/static
     depends_on:
       - backend
 
@@ -34,7 +35,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - static:/usr/share/nginx/html
+      - static:/usr/share/nginx/html/
       - media:/var/html/media
     depends_on:
       - frontend
