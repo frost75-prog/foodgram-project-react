@@ -12,6 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = ("SECRET_KEY")
 DEBUG = True
 ALLOWED_HOSTS = str(os.environ.get("ALLOWED_HOSTS")).split(',')
+CSRF_TRUSTED_ORIGINS = ['https://*.frost.sytes.net']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
