@@ -17,16 +17,16 @@ services:
     image: frost75/foodgram_backend
     env_file: .env
     volumes:
-      - static:/app/static/
-      - media:/app/media/
+      - static:/app/static
+      - media:/app/media
     depends_on:
       - db
 
   frontend:
     image: frost75/foodgram_frontend
-    command: cp -r /app/result_build/. /static/
+    command: cp -r /app/build/. /static/
     volumes:
-      - static:/static/
+      - static:/static
     depends_on:
       - backend
 
@@ -37,8 +37,8 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - static:/var/html/static/
-      - media:/var/html/media/
+      - static:/var/html/static
+      - media:/var/html/media
     depends_on:
       - frontend
       - backend
