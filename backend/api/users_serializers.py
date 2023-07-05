@@ -27,7 +27,7 @@ class UserReadSerializer(UserSerializer):
         return False
 
 
-class UserCreateSerializer(UserCreateSerializer):
+class CustomUserCreateSerializer(UserCreateSerializer):
     """[POST] Создание нового пользователя."""
     class Meta:
         model = User

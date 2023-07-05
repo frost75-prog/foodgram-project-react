@@ -124,7 +124,21 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    "LOGIN_FIELD": "email"
+    "LOGIN_FIELD": "email",
+    "HIDE_USERS": False,
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "USERNAME_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
+    "PASSWORD_RESET_CONFIRM_URL": "email/reset/confirm/{uid}/{token}",
+    "SERIALISERS": {
+        "user_create": "api.users_serializers.CustomUserCreateSerializer",
+        "user": "api.users_serializers.UserReadSerializer",
+        "current_user": "api.users_serializers.UserReadSerializer",
+        "user_delete": "djoser.serializers.UserDeleteSerializer",
+        "set_password": "api.users_serializers.SetPasswordSerializer",
+        "set_password_retype": "djoser.serializers.SetPasswordReTypeSerializer",
+        "token": "djoser.serializers.TokenSerializer",
+        "token_create": "djoser.serializers.TokenCreateSerializer",
+    }
 }
 
 AUTH_USER_MODEL = "users.User"
