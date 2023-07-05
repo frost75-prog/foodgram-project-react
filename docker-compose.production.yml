@@ -35,7 +35,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - static:/var/html/static
+      - static:/usr/share/nginx/html
       - media:/var/html/media
     depends_on:
       - frontend
