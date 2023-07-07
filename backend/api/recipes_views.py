@@ -116,10 +116,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}\n\n'
         )
         shopping_list += '\n'.join([
-            f' u\00b7 {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement_unit"]})'
-            f' - {ingredient["amount"]}'
-            for ingredient in ingredients
+            ' u\00b7 {ingredient__name} ({ingredient__measurement_unit})'
+            ' - {amount}'.format(**ingredient) for ingredient in ingredients
         ])
         file = HttpResponse(shopping_list, content_type='text/plain')
         file['Content-Disposition'] = f'attachment; filename={FILE_NAME}'
