@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -109,9 +111,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'errors': 'В Корзине отсутствуют рецепты'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        file_list = ['Список покупок:\n\n']
-        [file_list.append(
-            '{} - {} {}.\n'.format(*ingredient)) for ingredient in ingredients]
-        file = HttpResponse(file_list, content_type='text/plain')
+        shopping_list = (
+            f'Список покупок для: {request.user.get_full_name()}\n\n'
+            f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}\n'
+        )
+        shopping_list += '\n'.join([
+            f'- {ingredient["ingredient__name"]} '
+            f'({ingredient["ingredient__measurement_unit"]})'
+            f' - {ingredient["amount"]}'
+            for ingredient in ingredients
+        ])
+        file = HttpResponse(shopping_list, content_type='text/plain')
         file['Content-Disposition'] = f'attachment; filename={FILE_NAME}'
         return file
