@@ -112,11 +112,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         shopping_list = (
-            f'Список покупок для: {request.user.get_full_name()}\n\n'
-            f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}\n'
+            f'Список покупок для: {request.user.get_full_name()}\n'
+            f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}\n\n'
         )
         shopping_list += '\n'.join([
-            f'- {ingredient["ingredient__name"]} '
+            f' u\00b7 {ingredient["ingredient__name"]} '
             f'({ingredient["ingredient__measurement_unit"]})'
             f' - {ingredient["amount"]}'
             for ingredient in ingredients
