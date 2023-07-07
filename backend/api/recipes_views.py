@@ -103,7 +103,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'],
             permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request, **kwargs):
-        ingredients = ShoppingCart.manager.ingredients(request)
+        ingredients = ShoppingCart.manager.ingredients()
         file_list = ['Список покупок:\n\n']
         [file_list.append(
             '{} - {} {}.\n'.format(*ingredient)) for ingredient in ingredients]
