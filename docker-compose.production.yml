@@ -34,6 +34,7 @@ services:
     image: frost75/foodgram_gateway
     ports:
       - 8000:8000
+    command: cp -r /var/docs/. /static/
     volumes:
       - static:/usr/share/nginx/html
       - media:/var/html/media
