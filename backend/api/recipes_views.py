@@ -104,10 +104,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request, **kwargs):
         ingredients = ShoppingCart.manager.ingredients(request)
-        file_list = []
+        file_list = ['Список покупок:\n\n']
         [file_list.append(
-            '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]
-        file = HttpResponse('Cписок покупок:\n' + '\n'.join(file_list),
-                            content_type='text/plain')
-        file['Content-Disposition'] = (f'attachment; filename={FILE_NAME}')
+            '{} - {} {}.\n'.format(*ingredient)) for ingredient in ingredients]
+        file = HttpResponse(file_list, content_type='text/plain')
+        file['Content-Disposition'] = f'attachment; filename={FILE_NAME}'
         return file

@@ -3,6 +3,7 @@ name: Main foodgram workflow
 on:
   push:
     branches:
+      - main
       - master
 
 jobs:
@@ -119,6 +120,7 @@ jobs:
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --no-input
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients
           sudo docker system prune -a -f
+          sudo journalctl --vacuum-time=1d
 
   send_message:
     runs-on: ubuntu-latest
