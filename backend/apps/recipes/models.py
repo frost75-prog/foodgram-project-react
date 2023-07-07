@@ -13,7 +13,7 @@ from apps.users.models import User
 class IngredientsQuerySet(models.QuerySet):
     def ingredients(self, request):
         return RecipeIngredient.objects.filter(
-            recipe__shopping_cart__user=request.user).values(
+            recipe__shopping__user=request.user).values(
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=models.Sum('amount'))
