@@ -103,7 +103,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'],
             permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request, **kwargs):
-        ingredients = ShoppingCart.manager.ingredients()
+        ingredients = ShoppingCart.manager.ingredients(self, request, **kwargs)
+        if not ingredients:
+            return Response(
+                {'errors': 'В Корзине отсутствуют рецепты'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         file_list = ['Список покупок:\n\n']
         [file_list.append(
             '{} - {} {}.\n'.format(*ingredient)) for ingredient in ingredients]
