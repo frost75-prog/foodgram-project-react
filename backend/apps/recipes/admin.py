@@ -3,6 +3,11 @@ from django.contrib import admin
 from . import models
 
 
+class RecipeIngredientsInLine(admin.TabularInline):
+    model = models.Recipe.ingredients.through
+    extra = 1
+
+
 @admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'measurement_unit')
@@ -20,18 +25,26 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-        'pk', 'name', 'cooking_time', 'text',
-        'image', 'author', 'pub_date', 'slug',
+        'id',
+        'author',
+        'name',
+        'text',
+        'cooking_time',
+        'get_tags',
+        'get_favorite_count'
     )
-    list_editable = (
-        'name', 'cooking_time', 'text',
-        'image', 'author', 'slug',
-    )
-    list_filter = ('name', 'author', 'tags')
+    inlines = (RecipeIngredientsInLine,)
+    list_filter = ('author__email', 'tags', 'name')
+    search_fields = ('author__email', 'name',)
     empty_value_display = '-пусто-'
 
+    @admin.display(description='Тэги')
+    def get_tags(self, obj):
+        list_ = [tag.name for tag in obj.tags.all()]
+        return ', '.join(list_)
+
     @admin.display(description='В избранном')
-    def in_favorites(self, obj):
+    def get_favorite_count(self, obj):
         return obj.favorites.count()
 
 

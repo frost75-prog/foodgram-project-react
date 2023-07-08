@@ -3,14 +3,14 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from apps.recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from foodgram.settings import FILE_NAME
-from .filters import IngredientFilter, RecipeFilter
+from .filters import RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
 from .recipes_serializers import (IngredientSerializer, RecipeCreateSerializer,
@@ -28,7 +28,8 @@ class IngredientViewSet(
         viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filterset_class = IngredientFilter
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('@name',)
 
 
 class TagViewSet(
