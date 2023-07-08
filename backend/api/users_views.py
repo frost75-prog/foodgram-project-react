@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -6,10 +7,9 @@ from rest_framework.response import Response
 
 from apps.users.models import Follow, User
 from .pagination import CustomPagination
-from .recipes_serializers import SubscriptionsSerializer, UserReadSerializer
-from .users_serializers import (SetPasswordSerializer,
-                                SubscribeAuthorSerializer,
-                                UserCreateSerializer)
+from .users_serializers import (CustomUserCreateSerializer,
+                                SetPasswordSerializer, UserReadSerializer)
+from .recipes_serializers import FollowSerializer
 
 
 class UserViewSet(mixins.CreateModelMixin,
@@ -23,15 +23,14 @@ class UserViewSet(mixins.CreateModelMixin,
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return UserReadSerializer
-        return UserCreateSerializer
+        return CustomUserCreateSerializer
 
     @action(detail=False, methods=['get'],
             pagination_class=None,
             permission_classes=(IsAuthenticated,))
     def me(self, request):
         serializer = UserReadSerializer(request.user)
-        return Response(serializer.data,
-                        status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'],
             permission_classes=(IsAuthenticated,))
@@ -49,15 +48,15 @@ class UserViewSet(mixins.CreateModelMixin,
         queryset = self.request.user.follower.prefetch_related(
             'follower', 'following')
         page = self.paginate_queryset(queryset)
-        serializer = SubscriptionsSerializer(page, many=True,
-                                             context={'request': request})
+        serializer = UserReadSerializer(page, many=True,
+                                        context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['post'],
             permission_classes=(IsAuthenticated,))
     def subscribe(self, request, **kwargs):
         author = get_object_or_404(User, id=kwargs['pk'])
-        serializer = SubscribeAuthorSerializer(
+        serializer = FollowSerializer(
             author,
             data=request.data,
             context={'request': request}

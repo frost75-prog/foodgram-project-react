@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from apps.recipes.models import (Favorite, Ingredient, Recipe,
                                  RecipeIngredient, ShoppingCart, Tag)
-from .users_serializers import SubscribeSerializer, UserReadSerializer
+from .users_serializers import UserReadSerializer
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -163,14 +163,29 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return RecipeReadSerializer(instance, context=self.context).data
 
 
-class SubscriptionsSerializer(SubscribeSerializer):
-    """[GET] Список авторов на которых подписан пользователь."""
-    recipes = serializers.SerializerMethodField()
+class FollowSerializer(UserReadSerializer):
+    recipes_count = serializers.SerializerMethodField(
+        method_name='get_recipes_count')
+    recipes = serializers.SerializerMethodField(method_name='get_recipes')
 
-    def get_recipes(self, obj):
-        request = self.context['request']
+    class Meta(UserReadSerializer.Meta):
+        fields = UserReadSerializer.Meta.fields + (
+            'recipes_count', 'recipes')
+        read_only_fields = ('email', 'username')
+
+    def validate(self, author):
+        if self.context.get('request').user == author:
+            raise serializers.ValidationError({'errors': 'Ошибка подписки.'})
+        return author
+
+    def get_recipes_count(self, author):
+        return author.recipes.count()
+
+    def get_recipes(self, author):
+        request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
+        recipes = author.recipes.all()
+
         if limit:
             recipes = recipes[:int(limit)]
         serializer = RecipeSerializer(recipes, many=True, read_only=True)

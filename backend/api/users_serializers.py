@@ -16,14 +16,12 @@ class UserReadSerializer(UserSerializer):
                   'first_name', 'last_name',
                   'is_subscribed')
 
-    def get_user(self):
-        return self.context['request'].user
-
-    def get_is_subscribed(self, obj):
-        if (self.context.get('request') and not self.get_user().is_anonymous):
-            return Follow.objects.filter(user=self.get_user(),
-                                         author=obj).exists()
-        return False
+    def get_is_subscribed(self, author):
+        user = self.context.get('request').user
+        return (
+            user.is_authenticated and Follow.objects.filter(
+                user=user, author=author).exists()
+        )
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -73,39 +71,3 @@ class SetPasswordSerializer(serializers.Serializer):
         instance.set_password(new_password)
         instance.save()
         return validated_data
-
-
-class SubscribeSerializer(serializers.ModelSerializer):
-    """ Общий класс. """
-    is_subscribed = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
-
-    def get_user(self):
-        return self.context['request'].user
-
-    def get_is_subscribed(self, obj):
-        return (
-            self.get_user().is_authenticated and Follow.objects.filter(
-                user=self.get_user(), author=obj).exists()
-        )
-
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
-
-    class Meta:
-        model = User
-        fields = ('email', 'id',
-                  'username', 'first_name',
-                  'last_name', 'is_subscribed',
-                  'recipes', 'recipes_count')
-
-
-class SubscribeAuthorSerializer(SubscribeSerializer):
-    """[POST, DELETE] Подписка на автора и отписка."""
-    email = serializers.ReadOnlyField()
-    username = serializers.ReadOnlyField()
-
-    def validate(self, obj):
-        if (self.get_user() == obj):
-            raise serializers.ValidationError({'errors': 'Ошибка подписки.'})
-        return obj
