@@ -29,7 +29,7 @@ class IngredientViewSet(
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('@name',)
+    search_fields = ('=name',)
 
 
 class TagViewSet(
