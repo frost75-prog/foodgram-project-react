@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from apps.recipes.models import (Favorite, Ingredient, Recipe,
                                  RecipeIngredient, ShoppingCart, Tag)
-from .users_serializers import UsersListSerialiser
+from .users_serializers import CustomUsersSerialiser
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -47,7 +47,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 class RecipeReadSerializer(serializers.ModelSerializer):
     """[GET] Список рецептов."""
-    author = UsersListSerialiser(read_only=True)
+    author = CustomUsersSerialiser(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     ingredients = RecipeIngredientSerializer(
         many=True, read_only=True, source='recipes')
@@ -91,7 +91,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     """[POST, PATCH, DELETE] Создание, изменение и удаление рецепта."""
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
-    author = UsersListSerialiser(read_only=True)
+    author = CustomUsersSerialiser(read_only=True)
     ingredients = RecipeIngredientCreateSerializer(many=True)
     image = Base64ImageField(max_length=None, use_url=True)
 
@@ -161,13 +161,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return RecipeReadSerializer(instance, context=self.context).data
 
 
-class FollowSerializer(UsersListSerialiser):
-    recipes_count = serializers.SerializerMethodField(
-        method_name='get_recipes_count')
-    recipes = serializers.SerializerMethodField(method_name='get_recipes')
+class FollowSerializer(CustomUsersSerialiser):
+    recipes_count = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
 
-    class Meta(UsersListSerialiser.Meta):
-        fields = UsersListSerialiser.Meta.fields + (
+    class Meta(CustomUsersSerialiser.Meta):
+        fields = CustomUsersSerialiser.Meta.fields + (
             'recipes_count', 'recipes')
         read_only_fields = ('email', 'username')
 

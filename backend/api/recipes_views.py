@@ -25,7 +25,7 @@ class IngredientsAndTagsMixin:
 
 class IngredientViewSet(
         IngredientsAndTagsMixin,
-        viewsets.ModelViewSet):
+        viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (filters.SearchFilter,)
@@ -34,7 +34,7 @@ class IngredientViewSet(
 
 class TagViewSet(
         IngredientsAndTagsMixin,
-        viewsets.ModelViewSet):
+        viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
