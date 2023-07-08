@@ -188,6 +188,8 @@ class FollowSerializer(CustomUsersSerialiser):
     def validate(self, data):
         author = self.instance
         user = self.context.get('request').user
+        print(author.getFullName())
+        print(user.getFullName())
         if Follow.objects.filter(author=author, user=user).exists():
             raise ValidationError(
                 detail='Вы уже подписаны на этого пользователя!',
