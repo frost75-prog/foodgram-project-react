@@ -25,13 +25,6 @@ class UserViewSet(mixins.CreateModelMixin,
             return UserReadSerializer
         return CustomUserCreateSerializer
 
-    @action(detail=False, methods=['get'],
-            pagination_class=None,
-            permission_classes=(IsAuthenticated,))
-    def me(self, request):
-        serializer = UserReadSerializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=False, methods=['post'],
             permission_classes=(IsAuthenticated,))
     def set_password(self, request):
@@ -47,9 +40,12 @@ class UserViewSet(mixins.CreateModelMixin,
     def subscriptions(self, request):
         queryset = self.request.user.follower.prefetch_related(
             'follower', 'following')
-        page = self.paginate_queryset(queryset)
-        serializer = UserReadSerializer(page, many=True,
-                                        context={'request': request})
+        pages = self.paginate_queryset(queryset)
+        serializer = FollowSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['post'],

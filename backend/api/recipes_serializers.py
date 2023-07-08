@@ -63,20 +63,18 @@ class RecipeReadSerializer(serializers.ModelSerializer):
                   'name', 'image',
                   'text', 'cooking_time')
 
-    @property
-    def user(self):
-        return self.context['request'].user
-
     def get_is_favorited(self, obj):
         return (
-            self.user.is_authenticated and Favorite.objects.filter(
-                user=self.user, recipe=obj).exists()
+            self.context['request'].user.is_authenticated
+            and Favorite.objects.filter(
+                user=self.context['request'].user, recipe=obj).exists()
         )
 
     def get_is_in_shopping_cart(self, obj):
         return (
-            self.user.is_authenticated and ShoppingCart.manager.filter(
-                user=self.user, recipe=obj).exists()
+            self.context['request'].user.is_authenticated
+            and ShoppingCart.manager.filter(
+                user=self.context['request'].user, recipe=obj).exists()
         )
 
 
@@ -173,11 +171,6 @@ class FollowSerializer(UserReadSerializer):
             'recipes_count', 'recipes')
         read_only_fields = ('email', 'username')
 
-    def validate(self, author):
-        if self.context.get('request').user == author:
-            raise serializers.ValidationError({'errors': 'Ошибка подписки.'})
-        return author
-
     def get_recipes_count(self, author):
         return author.recipes.count()
 
@@ -185,8 +178,12 @@ class FollowSerializer(UserReadSerializer):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
         recipes = author.recipes.all()
-
         if limit:
             recipes = recipes[:int(limit)]
         serializer = RecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
+
+    def validate(self, author):
+        if self.context.get('request').user == author:
+            raise serializers.ValidationError({'errors': 'Ошибка подписки.'})
+        return author
