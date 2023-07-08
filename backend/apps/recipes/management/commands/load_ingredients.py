@@ -13,7 +13,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         total = 0
-        Ingredient.objects.all().delete()
         with open(self.FILE, 'r', encoding='utf-8') as file:
             progress_bar = IncrementalBar(
                 self.FILE.ljust(10), max=len(file.readlines()))

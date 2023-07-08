@@ -59,19 +59,25 @@ class UserViewSet(mixins.CreateModelMixin,
     @action(detail=True, methods=['post'],
             permission_classes=(IsAuthenticated,))
     def subscribe(self, request, **kwargs):
+        author = get_object_or_404(User, id=self.kwargs.get('id'))
         serializer = SubscribeAuthorSerializer(
-            self.get_user(kwargs['pk']),
-            data=request.data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
-        Follow.objects.create(
-            user=request.user, author=self.get_user(kwargs['pk']))
-        return Response(serializer.data,
-                        status=status.HTTP_201_CREATED)
+            author,
+            data=request.data,
+            context={'request': request}
+        )
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = {'author': author}
+        serializer.create(data)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, **kwargs):
+        author = get_object_or_404(User, id=self.kwargs.get('id'))
         get_object_or_404(
             Follow, user=request.user,
-            author=self.get_user(kwargs['pk'])).delete()
+            author=author).delete()
         return Response({'detail': 'Успешная отписка'},
                         status=status.HTTP_204_NO_CONTENT)

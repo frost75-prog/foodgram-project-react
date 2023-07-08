@@ -16,13 +16,12 @@ class UserReadSerializer(UserSerializer):
                   'first_name', 'last_name',
                   'is_subscribed')
 
-    @property
-    def user(self):
+    def get_user(self):
         return self.context['request'].user
 
     def get_is_subscribed(self, obj):
-        if (self.context.get('request') and not self.user.is_anonymous):
-            return Follow.objects.filter(user=self.user,
+        if (self.context.get('request') and not self.get_user().is_anonymous):
+            return Follow.objects.filter(user=self.get_user(),
                                          author=obj).exists()
         return False
 
@@ -81,14 +80,13 @@ class SubscribeSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
-    @property
-    def user(self):
+    def get_user(self):
         return self.context['request'].user
 
     def get_is_subscribed(self, obj):
         return (
-            self.user.is_authenticated and Follow.objects.filter(
-                user=self.user, author=obj).exists()
+            self.get_user().is_authenticated and Follow.objects.filter(
+                user=self.get_user(), author=obj).exists()
         )
 
     def get_recipes_count(self, obj):
@@ -108,6 +106,6 @@ class SubscribeAuthorSerializer(SubscribeSerializer):
     username = serializers.ReadOnlyField()
 
     def validate(self, obj):
-        if (self.user == obj):
+        if (self.get_user() == obj):
             raise serializers.ValidationError({'errors': 'Ошибка подписки.'})
         return obj
