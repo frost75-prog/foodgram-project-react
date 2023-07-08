@@ -33,7 +33,7 @@ class UserRegistrationSerializer(UserCreateSerializer):
                   'password')
         write_only_fields = ('password',)
 
-    def validate_username(self, obj):
+    def validate(self, obj):
         invalid_usernames = ['me', 'set_password',
                              'subscriptions', 'subscribe']
         if self.initial_data.get('username') in invalid_usernames:
@@ -41,15 +41,6 @@ class UserRegistrationSerializer(UserCreateSerializer):
                 {'username': 'Вы не можете использовать этот username.'}
             )
         return obj
-
-
-class UserInfoSerialiser(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = (
-            "email", "id", "username", "first_name", "last_name"
-        )
 
 
 class SetPasswordSerializer(serializers.Serializer):

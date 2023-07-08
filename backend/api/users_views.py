@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from apps.users.models import Follow, User
 from .pagination import CustomPagination
-from .users_serializers import (SetPasswordSerializer, UserInfoSerialiser,
+from .users_serializers import (SetPasswordSerializer,
                                 UsersListSerialiser,
                                 UserRegistrationSerializer)
 from .recipes_serializers import FollowSerializer
@@ -22,27 +22,17 @@ class UserViewSet(mixins.CreateModelMixin,
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
-        if self.action in ("me"):
-            return UserInfoSerialiser
-        elif self.action in ("create",):
-            return UserRegistrationSerializer
-        else:
+        if self.action in ('list', 'retrieve'):
             return UsersListSerialiser
+        return UserRegistrationSerializer
 
     @action(detail=False, methods=['get'],
+            pagination_class=None,
             permission_classes=(IsAuthenticated,))
     def me(self, request):
-        if request.method == "GET":
-            serializer = self.get_serializer_class(request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = self.get_serializer_class(
-            request.user,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UsersListSerialiser(request.user)
+        return Response(serializer.data,
+                        status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'],
             permission_classes=(IsAuthenticated,))
@@ -88,7 +78,6 @@ class UserViewSet(mixins.CreateModelMixin,
     def unsubscribe(self, request, **kwargs):
         author = get_object_or_404(User, id=kwargs['pk'])
         get_object_or_404(
-            Follow, user=request.user,
-            author=author).delete()
+            Follow, user=request.user, author=author).delete()
         return Response({'detail': 'Успешная отписка'},
                         status=status.HTTP_204_NO_CONTENT)
