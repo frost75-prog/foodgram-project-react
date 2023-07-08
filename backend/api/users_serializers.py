@@ -6,7 +6,7 @@ from rest_framework import serializers
 from apps.users.models import Follow, User
 
 
-class UserReadSerializer(UserSerializer):
+class UsersListSerialiser(UserSerializer):
     """[GET] Cписок пользователей."""
     is_subscribed = serializers.SerializerMethodField()
 
@@ -24,7 +24,7 @@ class UserReadSerializer(UserSerializer):
         )
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
+class UserRegistrationSerializer(UserCreateSerializer):
     """[POST] Создание нового пользователя."""
     class Meta:
         model = User
@@ -41,6 +41,15 @@ class CustomUserCreateSerializer(UserCreateSerializer):
                 {'username': 'Вы не можете использовать этот username.'}
             )
         return obj
+
+
+class UserInfoSerialiser(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            "email", "id", "username", "first_name", "last_name"
+        )
 
 
 class SetPasswordSerializer(serializers.Serializer):

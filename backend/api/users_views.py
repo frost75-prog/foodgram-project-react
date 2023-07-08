@@ -7,8 +7,9 @@ from rest_framework.response import Response
 
 from apps.users.models import Follow, User
 from .pagination import CustomPagination
-from .users_serializers import (CustomUserCreateSerializer,
-                                SetPasswordSerializer, UserReadSerializer)
+from .users_serializers import (SetPasswordSerializer, UserInfoSerialiser,
+                                UsersListSerialiser,
+                                UserRegistrationSerializer)
 from .recipes_serializers import FollowSerializer
 
 
@@ -21,9 +22,27 @@ class UserViewSet(mixins.CreateModelMixin,
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return UserReadSerializer
-        return CustomUserCreateSerializer
+        if self.action in ("me"):
+            return UserInfoSerialiser
+        elif self.action in ("create",):
+            return UserRegistrationSerializer
+        else:
+            return UsersListSerialiser
+
+    @action(detail=False, methods=['get'],
+            permission_classes=(IsAuthenticated,))
+    def me(self, request):
+        if request.method == "GET":
+            serializer = self.get_serializer_class(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = self.get_serializer_class(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'],
             permission_classes=(IsAuthenticated,))
