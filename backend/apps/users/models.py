@@ -63,7 +63,7 @@ class User(AbstractUser):
         ordering = ('id',)
 
     def __str__(self):
-        return self.username
+        return self.get_full_name()
 
 
 class Follow(models.Model):

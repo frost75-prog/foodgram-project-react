@@ -25,9 +25,6 @@ class UserViewSet(mixins.CreateModelMixin,
             return UserReadSerializer
         return UserCreateSerializer
 
-    def get_user(self, id):
-        return get_object_or_404(User, id=id)
-
     @action(detail=False, methods=['get'],
             pagination_class=None,
             permission_classes=(IsAuthenticated,))
@@ -59,7 +56,7 @@ class UserViewSet(mixins.CreateModelMixin,
     @action(detail=True, methods=['post'],
             permission_classes=(IsAuthenticated,))
     def subscribe(self, request, **kwargs):
-        author = get_object_or_404(User, id=self.kwargs.get('id'))
+        author = get_object_or_404(User, id=kwargs['pk'])
         serializer = SubscribeAuthorSerializer(
             author,
             data=request.data,
@@ -75,7 +72,7 @@ class UserViewSet(mixins.CreateModelMixin,
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, **kwargs):
-        author = get_object_or_404(User, id=self.kwargs.get('id'))
+        author = get_object_or_404(User, id=kwargs['pk'])
         get_object_or_404(
             Follow, user=request.user,
             author=author).delete()
