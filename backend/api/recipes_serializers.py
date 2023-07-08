@@ -1,9 +1,12 @@
 from django.db import transaction
+
 from drf_base64.fields import Base64ImageField
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 
 from apps.recipes.models import (Favorite, Ingredient, Recipe,
                                  RecipeIngredient, ShoppingCart, Tag)
+from apps.users.models import Follow
 from .users_serializers import CustomUsersSerialiser
 
 
@@ -182,7 +185,17 @@ class FollowSerializer(CustomUsersSerialiser):
         serializer = RecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
-    def validate(self, author):
-        if self.context.get('request').user == author:
-            raise serializers.ValidationError({'errors': 'Ошибка подписки.'})
-        return author
+    def validate(self, data):
+        author = self.instance
+        user = self.context.get('request').user
+        if Follow.objects.filter(author=author, user=user).exists():
+            raise ValidationError(
+                detail='Вы уже подписаны на этого пользователя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        if user == author:
+            raise ValidationError(
+                detail='Нельзя подписаться на самого себя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return data
