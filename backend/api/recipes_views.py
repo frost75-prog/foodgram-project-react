@@ -83,7 +83,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         shopping_list += '\n'.join([
             ' - {ingredient__name} ({ingredient__measurement_unit})'
-            ' - {amount}'.format(**ingredient) for ingredient in ingredients
+            ' - {amount:g}'.format(**ingredient) for ingredient in ingredients
         ])
         file = HttpResponse(shopping_list, content_type='text/plain')
         file['Content-Disposition'] = f'attachment; filename={FILE_NAME}'

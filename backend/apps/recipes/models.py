@@ -66,6 +66,7 @@ class Tag(models.Model):
     )
 
     class Meta:
+        ordering = ('id',)
         verbose_name = _('Тег')
         verbose_name_plural = _('Теги')
         default_related_name = 'tags'

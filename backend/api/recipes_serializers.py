@@ -8,7 +8,7 @@ from rest_framework.serializers import ModelSerializer
 
 from apps.recipes.models import (Favorite, Ingredient, Recipe,
                                  RecipeIngredient, ShoppingCart, Tag)
-from apps.users.models import Follow, User
+from apps.users.models import User
 from .users_serializers import CustomUsersSerialiser
 
 
@@ -165,14 +165,13 @@ class FollowSerializer(ModelSerializer):
     recipes_count = SerializerMethodField(read_only=True)
     is_subscribed = SerializerMethodField(read_only=True)
 
-    def get_recipes_count(self, author):
+    @staticmethod
+    def get_recipes_count(author):
         return author.recipes.count()
 
     def get_is_subscribed(self, author):
-        if (self.context.get('request') and not self.user.is_anonymous):
-            return Follow.objects.filter(user=self.user,
-                                         author=author).exists()
-        return False
+        user = self.context['request'].user
+        return bool(author.follower.filter(user=user))
 
     class Meta:
         model = User
