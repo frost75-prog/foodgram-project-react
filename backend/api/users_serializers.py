@@ -5,7 +5,7 @@ from apps.users.models import Follow, User
 
 
 class CustomUsersSerialiser(serializers.UserSerializer):
-    is_subscribed = SerializerMethodField(read_only=True)
+    is_subscribed = SerializerMethodField()
 
     class Meta:
         model = User
@@ -18,11 +18,15 @@ class CustomUsersSerialiser(serializers.UserSerializer):
             'is_subscribed',
         )
 
+    @property
+    def user(self):
+        return self.context['request'].user
+
     def get_is_subscribed(self, author):
-        request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=request.user, author=author).exists()
+        if (self.context.get('request') and not self.user.is_anonymous):
+            return Follow.objects.filter(user=self.user,
+                                         author=author).exists()
+        return False
 
 
 class CustomUserCreateSerializer(serializers.UserCreateSerializer):

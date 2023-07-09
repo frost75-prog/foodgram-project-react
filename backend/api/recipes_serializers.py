@@ -61,18 +61,20 @@ class RecipeReadSerializer(serializers.ModelSerializer):
                   'name', 'image',
                   'text', 'cooking_time')
 
+    @property
+    def user(self):
+        return self.context['request'].user
+
     def get_is_favorited(self, obj):
         return (
-            self.context['request'].user.is_authenticated
-            and Favorite.objects.filter(
-                user=self.context['request'].user, recipe=obj).exists()
+            self.user.is_authenticated and Favorite.objects.filter(
+                user=self.user, recipe=obj).exists()
         )
 
     def get_is_in_shopping_cart(self, obj):
         return (
-            self.context['request'].user.is_authenticated
-            and ShoppingCart.manager.filter(
-                user=self.context['request'].user, recipe=obj).exists()
+            self.user.is_authenticated and ShoppingCart.manager.filter(
+                user=self.user, recipe=obj).exists()
         )
 
 
@@ -175,9 +177,8 @@ class FollowSerializer(CustomUsersSerialiser):
     def get_recipes(self, author):
         request = self.context.get('request')
         limit_recipes = request.query_params.get('recipes_limit')
-        if limit_recipes is not None:
-            recipes = author.recipes.all()[:int(limit_recipes)]
-        else:
-            recipes = author.recipes.all()
+        recipes = author.recipes.all()
+        if limit_recipes:
+            recipes = recipes[:int(limit_recipes)]
         return RecipeSerializer(recipes, many=True,
                                 context={'request': request}).data

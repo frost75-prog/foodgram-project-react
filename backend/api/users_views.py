@@ -17,6 +17,9 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = CustomPagination
     serializer_class = CustomUsersSerialiser
 
+    def get_user(self, id):
+        return get_object_or_404(User, id=id)
+
     @action(detail=False, permission_classes=(IsAuthenticatedOrAdmin,))
     def subscriptions(self, request):
         queryset = self.request.user.follower.prefetch_related(
@@ -32,7 +35,7 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=True, methods=['post'],
             permission_classes=(IsAuthenticatedOrAdmin,))
     def subscribe(self, request, **kwargs):
-        author = get_object_or_404(User, id=self.kwargs.get('id'))
+        author = self.get_user(kwargs['pk'])
         serializer = FollowSerializer(
             author,
             data=request.data,
@@ -44,8 +47,7 @@ class CustomUserViewSet(UserViewSet):
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, **kwargs):
-        author = get_object_or_404(User, id=self.kwargs.get('id'))
-        get_object_or_404(
-            Follow, user=request.user, author=author).delete()
+        author = self.get_user(kwargs['pk'])
+        get_object_or_404(Follow, user=request.user, author=author).delete()
         return Response({'detail': 'Успешная отписка'},
                         status=status.HTTP_204_NO_CONTENT)
