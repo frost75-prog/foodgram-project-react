@@ -134,9 +134,6 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
 
-    MESSAGE = ('{recipe.name}: {ingredient.name}'
-               ' - {amount} {ingredient.measurement_unit}')
-
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
