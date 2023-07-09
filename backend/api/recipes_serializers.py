@@ -174,14 +174,6 @@ class FollowSerializer(ModelSerializer):
                                          author=author).exists()
         return False
 
-    def get_recipes(self, author):
-        request = self.context.get('request')
-        recipes_limit = request.query_params.get('recipes_limit')
-        recipes = author.recipes.all()
-        if recipes_limit:
-            recipes = recipes[:int(recipes_limit)]
-        return RecipeShortSerializer(recipes, many=True, read_only=True).data
-
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'first_name',
