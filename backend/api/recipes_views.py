@@ -73,7 +73,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'],
             permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
-        ingredients = ShoppingCart.manager.ingredients(request)
+        ingredients = ShoppingCart.objects.ingredients(request)
         if not ingredients:
             return Response(
                 {'errors': 'В Корзине отсутствуют рецепты'},

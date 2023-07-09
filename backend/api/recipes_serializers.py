@@ -90,7 +90,7 @@ class RecipeReadSerializer(ModelSerializer):
 
     def get_is_in_shopping_cart(self, obj):
         return (
-            self.user.is_authenticated and ShoppingCart.manager.filter(
+            self.user.is_authenticated and ShoppingCart.objects.filter(
                 user=self.user, recipe=obj).exists()
         )
 

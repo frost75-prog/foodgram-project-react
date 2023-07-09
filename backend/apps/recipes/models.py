@@ -214,7 +214,7 @@ class ShoppingCart(models.Model):
         verbose_name=_('Список покупок')
     )
 
-    manager = IngredientsQuerySet.as_manager()
+    objects = IngredientsQuerySet.as_manager()
 
     class Meta:
         verbose_name = _('Список покупок')
