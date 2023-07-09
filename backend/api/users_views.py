@@ -36,6 +36,7 @@ class CustomUserViewSet(UserViewSet):
             permission_classes=(IsAuthenticatedOrAdmin,))
     def subscribe(self, request, **kwargs):
         author = self.get_user(kwargs['id'])
+        print(author.get_full_name())
         serializer = FollowSerializer(
             author,
             data=request.data,
