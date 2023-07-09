@@ -2,7 +2,8 @@ from django.shortcuts import get_object_or_404
 
 from drf_base64.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import IntegerField, SerializerMethodField
+from rest_framework.fields import (DecimalField, IntegerField,
+                                   SerializerMethodField)
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer, ReadOnlyField
 
@@ -25,7 +26,7 @@ class TagSerializer(ModelSerializer):
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
     id = IntegerField(write_only=True)
-    amount = IntegerField(required=True)
+    amount = DecimalField(required=True)
     name = SerializerMethodField()
     measurement_unit = SerializerMethodField()
 
@@ -42,24 +43,25 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
         return name
 
 
-class IngredientInRecipeSerializer(ModelSerializer):
-    id = ReadOnlyField(source="ingredient.id")
-    name = ReadOnlyField(source="ingredient.name")
-    measurement_unit = ReadOnlyField(
-        source="ingredient.measurement_unit")
+class RecipeIngredientSerializer(ModelSerializer):
+    id = ReadOnlyField(source='ingredient.id')
+    name = ReadOnlyField(source='ingredient.name')
+    measurement_unit = ReadOnlyField(source='ingredient.measurement_unit')
 
     class Meta:
         model = RecipeIngredient
-        fields = ("id", "name", "measurement_unit", "amount")
+        fields = ('id', 'name',
+                  'measurement_unit', 'amount')
 
 
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUsersSerialiser(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True)
+    ingredients = RecipeIngredientSerializer(
+        many=True, read_only=True, source='recipes')
     image = Base64ImageField()
-    is_favorited = SerializerMethodField(read_only=True)
-    is_in_shopping_cart = SerializerMethodField(read_only=True)
+    is_favorited = SerializerMethodField()
+    is_in_shopping_cart = SerializerMethodField()
 
     class Meta:
         model = Recipe
