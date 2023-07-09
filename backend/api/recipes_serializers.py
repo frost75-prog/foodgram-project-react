@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 
 from drf_base64.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
@@ -122,7 +121,7 @@ class RecipeWriteSerializer(ModelSerializer):
         RecipeIngredient.objects.bulk_create(
             [RecipeIngredient(
                 recipe=recipe,
-                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
+                ingredient=Ingredient.objects.get(pk=ingredient['id']),
                 amount=ingredient['amount']
             ) for ingredient in ingredients])
 

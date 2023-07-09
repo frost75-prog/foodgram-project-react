@@ -1,5 +1,3 @@
-from dataclasses import asdict
-
 from django.core.validators import (MinValueValidator, RegexValidator,
                                     validate_image_file_extension,
                                     validate_unicode_slug)
@@ -172,7 +170,9 @@ class RecipeIngredient(models.Model):
         ]
 
     def __str__(self):
-        return self.MESSAGE.format(**asdict(self))
+        return (
+            f'{self.ingredient.name} - '
+            f'{self.amount} {self.ingredient.measurement_unit}')
 
 
 class Favorite(models.Model):
