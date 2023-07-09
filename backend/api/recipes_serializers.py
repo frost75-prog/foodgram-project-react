@@ -87,8 +87,7 @@ class RecipeReadSerializer(ModelSerializer):
 
     def get_ingredients(self, obj):
         ingredients = RecipeIngredient.objects.filter(recipe=obj)
-        serializer = GetIngredientRecipeSerializer(ingredients, many=True)
-        return serializer.data
+        return GetIngredientRecipeSerializer(ingredients, many=True).data
 
 
 class RecipeWriteSerializer(ModelSerializer):
