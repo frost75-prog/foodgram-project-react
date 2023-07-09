@@ -132,7 +132,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
 }
 
 DJOSER = {
@@ -147,7 +147,7 @@ DJOSER = {
         "current_user": "api.users_serializers.CustomUsersSerialiser",
     },
     "PERMISSIONS": {
-        "user": ["djoser.permissions.CurrentUserOrAdminOrReadOnly"],
+        "user": ["djoser.permissions.AllowAny"],
     }
 }
 
