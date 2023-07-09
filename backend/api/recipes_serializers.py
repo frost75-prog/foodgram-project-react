@@ -1,8 +1,8 @@
 from django.db import transaction
-
 from drf_base64.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import IntegerField, SerializerMethodField
+from rest_framework.fields import (DecimalField, IntegerField,
+                                   SerializerMethodField)
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer
 
@@ -26,6 +26,7 @@ class TagSerializer(ModelSerializer):
 
 class ShortIngredientSerializerForRecipe(ModelSerializer):
     id = IntegerField()
+    amount = DecimalField(max_digits=7, decimal_places=2)
 
     class Meta:
         model = Ingredient
