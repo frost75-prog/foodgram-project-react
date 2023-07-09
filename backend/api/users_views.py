@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from djoser.views import UserViewSet
-from rest_framework import status
+from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -32,17 +32,19 @@ class CustomUserViewSet(UserViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=['post'],
+    @action(detail=True, methods=['post'], serializer_class=FollowSerializer,
             permission_classes=(IsAuthenticatedOrAdmin,))
     def subscribe(self, request, **kwargs):
         author = self.get_user(kwargs['id'])
-        serializer = FollowSerializer(
-            author,
-            data=request.data,
-            context={'request': request}
-        )
-        serializer.is_valid(raise_exception=True)
-        Follow.objects.create(user=request.user, author=author)
+        if request.user == author:
+            raise exceptions.ValidationError(
+                'Подписываться на себя запрещено.')
+        _, created = Follow.objects.get_or_create(
+            user=request.user, author=author)
+        if not created:
+            raise exceptions.ValidationError(
+                'Вы уже подписаны на этого пользователя.')
+        serializer = self.get_serializer(author)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
