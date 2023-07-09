@@ -116,7 +116,7 @@ class RecipeWriteSerializer(ModelSerializer):
         if not obj.get('ingredients'):
             raise ValidationError('Нужно указать минимум 1 ингредиент.')
 
-        inrgedient_id_list = [item['id'] for item in obj.get('ingredients')]
+        inrgedient_id_list = [item['pk'] for item in obj.get('ingredients')]
         if len(inrgedient_id_list) != len(set(inrgedient_id_list)):
             raise ValidationError('Ингредиенты должны быть уникальны.')
         return obj
