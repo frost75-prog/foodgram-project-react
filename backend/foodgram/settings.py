@@ -131,8 +131,6 @@ DJOSER = {
     "LOGIN_FIELD": "email",
     "HIDE_USERS": False,
     "USER_CREATE_PASSWORD_RETYPE": True,
-    "USERNAME_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
-    "PASSWORD_RESET_CONFIRM_URL": "email/reset/confirm/{uid}/{token}",
     "SERIALIZERS": {
         "user_create": "api.users_serializers.CustomUserCreateSerializer",
         "user": "api.users_serializers.CustomUsersSerialiser",
