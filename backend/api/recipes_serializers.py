@@ -167,8 +167,7 @@ class FollowSerializer(ModelSerializer):
     recipes_count = SerializerMethodField(read_only=True)
     is_subscribed = SerializerMethodField(read_only=True)
 
-    @staticmethod
-    def get_recipes_count(author):
+    def get_recipes_count(self, author):
         return author.recipes.count()
 
     def get_is_subscribed(self, author):
