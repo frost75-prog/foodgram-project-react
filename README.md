@@ -67,7 +67,7 @@ Cайт Foodgram, «Продуктовый помощник».
 git clone git@github.com:frost75-prog/foodgram-project-react.git
 ```
 ```
-cd foodgram-project-react
+cd foodgram
 ```
 
 Установите на сервере Docker, Docker Compose:
@@ -128,10 +128,10 @@ sudo docker-compose exec backend python manage.py collectstatic --no-input
 
 
 ### Команды для заполнения базы ингредиентами:
-* Копируем файл "ingredients.json" с фикстурами на сервер:
+* Копируем файл "ingredients.csv" с фикстурами на сервер:
 (копирование нужно делать из папки /backend/foodgram/data/)
 ```
-scp ingredients.json <username>@<ID>:/home/<username>/          # username - имя пользователя на сервере
+scp ingredients.csv <username>@<ID>:/home/<username>/          # username - имя пользователя на сервере
                                                                 # IP - публичный IP сервера
 ```
 
@@ -143,7 +143,7 @@ sudo docker cp ingredients.json <CONTAINER ID>:/app          # CONTAINER ID - ID
 
 * Применяем фикстуры:
 ```
-sudo docker-compose exec backend python manage.py loaddata fixtures.json
+sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients
 ```
 
 После каждого обновления репозитория (push в ветку master) будет происходить:
