@@ -25,8 +25,9 @@ INSTALLED_APPS = [
     "django_filters",
     "drf_base64",
     "rest_framework",
-    "rest_framework.authtoken",
     "djoser",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
 
     "api.apps.ApiConfig",
     "apps.recipes.apps.RecipesConfig",
@@ -117,7 +118,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -129,7 +130,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "AUTH_HEADER_TYPES": ("JWT",),
+    "AUTH_HEADER_TYPES": ("Bearer",),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
@@ -142,10 +143,10 @@ DJOSER = {
     "PASSWORD_RESET_CONFIRM_URL": "email/reset/confirm/{uid}/{token}",
     "SERIALISERS": {
         "user_create": "api.users_serializers.CustomUserCreateSerializer",
-        "user": "api.users_serializers.UserReadSerializer",
-        "current_user": "api.users_serializers.UserReadSerializer",
+        "user": "api.users_serializers.CustomUsersSerialiser",
+        "current_user": "api.users_serializers.CustomUsersSerialiser",
         "user_delete": "djoser.serializers.UserDeleteSerializer",
-        "set_password": "api.users_serializers.SetPasswordSerializer",
+        "set_password": "api.users_serializers.CustomSetPasswordSerializer",
         "set_password_retype": "djoser.serializers.SetPasswordReTypeSerializer",
         "token": "djoser.serializers.TokenSerializer",
         "token_create": "djoser.serializers.TokenCreateSerializer",
