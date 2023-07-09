@@ -26,7 +26,7 @@ class CustomUsersSerialiser(serializers.UserSerializer):
 
 
 class CustomUserCreateSerializer(serializers.UserCreateSerializer):
-    """[POST] Создание нового пользователя."""
+
     class Meta:
         model = User
         fields = (
