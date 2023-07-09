@@ -182,16 +182,10 @@ class RecipeWriteSerializer(ModelSerializer):
 
 
 class RecipeShortSerializer(ModelSerializer):
-    image = Base64ImageField()
 
     class Meta:
         model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time'
-        )
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class FollowSerializer(CustomUsersSerialiser):
@@ -209,9 +203,8 @@ class FollowSerializer(CustomUsersSerialiser):
 
     def get_recipes(self, author):
         request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
+        recipes_limit = request.query_params.get('recipes_limit')
         recipes = author.recipes.all()
-        if limit:
-            recipes = recipes[:int(limit)]
-        serializer = RecipeShortSerializer(recipes, many=True, read_only=True)
-        return serializer.data
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
+        return RecipeShortSerializer(recipes, many=True, read_only=True).data
