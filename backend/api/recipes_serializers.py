@@ -26,7 +26,7 @@ class TagSerializer(ModelSerializer):
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
     id = IntegerField(write_only=True)
-    amount = DecimalField(required=True)
+    amount = DecimalField(max_digits=7, decimal_places=2, required=True)
     name = SerializerMethodField()
     measurement_unit = SerializerMethodField()
 
