@@ -1,5 +1,6 @@
+from django.contrib.auth.password_validation import validate_password
 from djoser import serializers
-from rest_framework.fields import SerializerMethodField
+from rest_framework.fields import CharField, SerializerMethodField
 
 from apps.users.models import Follow, User
 
@@ -32,7 +33,7 @@ class CustomUsersSerialiser(serializers.UserSerializer):
 class CustomUserCreateSerializer(serializers.UserCreateSerializer):
     class Meta:
         model = User
-        fields = ('email', 'id', 'username',
+        fields = ('id', 'email', 'username',
                   'first_name', 'last_name', 'password')
 
     def validate_username(self, obj):
@@ -43,3 +44,33 @@ class CustomUserCreateSerializer(serializers.UserCreateSerializer):
                 {'username': 'Вы не можете использовать этот username.'}
             )
         return obj
+
+
+class CustomSetPasswordSerializer(serializers.SetPasswordSerializer):
+    current_password = CharField()
+    new_password = CharField()
+
+    def validate(self, obj):
+        try:
+            validate_password(obj['new_password'])
+        except serializers.ValidationError as error:
+            raise serializers.ValidationError(
+                {'new_password': list(error.messages)}
+            )
+        return super().validate(obj)
+
+    def update(self, instance, validated_data):
+        current_password = validated_data['current_password']
+        new_password = validated_data['new_password']
+        if not instance.check_password(current_password):
+            raise serializers.ValidationError(
+                {'current_password': 'Неправильный пароль.'}
+            )
+
+        if current_password == new_password:
+            raise serializers.ValidationError(
+                {'new_password': 'Новый пароль должен отличаться от текущего.'}
+            )
+        instance.set_password(new_password)
+        instance.save()
+        return validated_data
