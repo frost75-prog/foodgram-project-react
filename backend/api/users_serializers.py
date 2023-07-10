@@ -35,12 +35,6 @@ class CustomUserCreateSerializer(serializers.UserCreateSerializer):
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name', 'password')
 
-        extra_kwargs = {
-            'first_name': {'required': True, 'allow_blank': False},
-            'last_name': {'required': True, 'allow_blank': False},
-            'email': {'required': True, 'allow_blank': False},
-        }
-
     def validate_username(self, obj):
         invalid_usernames = ['me', 'set_password',
                              'subscriptions', 'subscribe']
