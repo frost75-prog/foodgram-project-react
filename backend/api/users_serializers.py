@@ -39,5 +39,6 @@ class CustomUserCreateSerializer(serializers.UserCreateSerializer):
             'username',
             'first_name',
             'last_name',
-            'password',
+            'password'
         )
+        write_only_fields = ('password',)
