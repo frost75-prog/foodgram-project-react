@@ -113,7 +113,7 @@ REGEX_COLOR_TAG = re.compile(r"^#([a-fA-F0-9]{6})")
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
@@ -132,7 +132,7 @@ DJOSER = {
     "HIDE_USERS": False,
     "USER_CREATE_PASSWORD_RETYPE": True,
     "SERIALIZERS": {
-        # "user_create": "api.users_serializers.CustomUserCreateSerializer",
+        "user_create": "api.users_serializers.CustomUserCreateSerializer",
         "user": "api.users_serializers.CustomUsersSerialiser",
         "current_user": "api.users_serializers.CustomUsersSerialiser",
         "set_password": "api.users_serializers.CustomSetPasswordSerializer",

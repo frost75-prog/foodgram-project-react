@@ -31,10 +31,16 @@ class CustomUsersSerialiser(serializers.UserSerializer):
 
 
 class CustomUserCreateSerializer(serializers.UserCreateSerializer):
+    re_password = SerializerMethodField(write_only=True)
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'username',
-                  'first_name', 'last_name', 'password')
+        fields = ('id', 'email', 'username', 'first_name',
+                  'last_name', 'password' 're_password')
+        read_only_fields = ('id', )
+
+    def get_re_password(self, obj):
+        return self.initial_data.get('password')
 
     def validate_username(self, obj):
         invalid_usernames = ['me', 'set_password',
