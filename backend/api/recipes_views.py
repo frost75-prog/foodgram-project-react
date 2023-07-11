@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
+from reportlab.pdfgen.canvas import Canvas
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
@@ -77,16 +78,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'errors': 'В Корзине отсутствуют рецепты'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        shopping_list = (
+        canvas = Canvas(FILE_NAME)
+        canvas.setFont("Helvetica-Bold", 18)
+        shopping_list_title = (
             f'Список покупок для: {request.user.get_full_name()}\n'
             f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}\n\n'
         )
-        shopping_list += '\n'.join([
+        canvas.drawString(shopping_list_title)
+        canvas.setFont("Helvetica", 14)
+        shopping_list_body = '\n'.join([
             ' - {ingredient__name} ({ingredient__measurement_unit})'
             ' - {amount:g}'.format(**ingredient) for ingredient in ingredients
         ])
-        file = HttpResponse(shopping_list, content_type='text/plain')
-        file['Content-Disposition'] = f'attachment; filename={FILE_NAME}'
+        canvas.drawString(shopping_list_body)
+        file = HttpResponse(canvas.save(), content_type='application/pdf;')
+        file['Content-Disposition'] = f'inline; filename={FILE_NAME}'
+        file['Content-Transfer-Encoding'] = 'binary'
         return file
 
     def add_to(self, model, user, pk):

@@ -144,4 +144,4 @@ DJOSER = {
 
 AUTH_USER_MODEL = "users.User"
 
-FILE_NAME = "shopping.txt"
+FILE_NAME = "shopping.pdf"
