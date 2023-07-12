@@ -4,6 +4,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
@@ -78,19 +81,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'errors': 'В Корзине отсутствуют рецепты'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        canvas = Canvas(FILE_NAME)
-        canvas.setFont("Helvetica-Bold", 18)
-        shopping_list_title = (
-            f'Список покупок для: {request.user.get_full_name()}\n'
-            f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}\n\n'
-        )
-        canvas.drawString(shopping_list_title)
-        canvas.setFont("Helvetica", 14)
-        shopping_list_body = '\n'.join([
+        shopping_list_title = [
+            f'Список покупок для: {request.user.get_full_name()}',
+            f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}'
+        ]
+        shopping_list_body = [
             ' - {ingredient__name} ({ingredient__measurement_unit})'
-            ' - {amount:g}'.format(**ingredient) for ingredient in ingredients
-        ])
-        canvas.drawString(shopping_list_body)
+            ' - {amount}'.format(**ingredient) for ingredient in ingredients
+        ]
+        registerFont(TTFont('Arial', 'arial.ttf'))
+        canvas = Canvas(FILE_NAME, pagesize=A4, bottomup=0)
+
+        x = 50
+        y = 50
+        delta = 20
+
+        canvas.setFont('Arial', 16)
+        for string in shopping_list_title:
+            canvas.drawString(x, y, string)
+            y += delta
+
+        y += 30
+        canvas.setFont('Arial', 12)
+        for string in shopping_list_body:
+            canvas.drawString(x, y, string)
+            y += delta
+
         file = HttpResponse(canvas.save(), content_type='application/pdf;')
         file['Content-Disposition'] = f'inline; filename={FILE_NAME}'
         file['Content-Transfer-Encoding'] = 'binary'

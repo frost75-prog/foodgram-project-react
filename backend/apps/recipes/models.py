@@ -3,6 +3,7 @@ from django.core.validators import (MinValueValidator, RegexValidator,
                                     validate_unicode_slug)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from decimal import Decimal
 
 from foodgram.settings import MAX_LENGTH_INGREDIENTFIELDS, REGEX_COLOR_TAG
 from apps.users.models import User
@@ -14,7 +15,7 @@ class IngredientsQuerySet(models.QuerySet):
             recipe__shopping__user=request.user).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(amount=models.Sum('amount'))
+        ).annotate(amount=Decimal(models.Sum('amount')).normalize())
 
 
 class Ingredient(models.Model):
