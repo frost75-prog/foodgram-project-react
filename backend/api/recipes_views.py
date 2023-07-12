@@ -82,6 +82,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'errors': 'В Корзине отсутствуют рецепты'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{FILE_NAME}"'
         shopping_list_title = [
             f'Список покупок для: {request.user.get_full_name()}',
             f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}'
@@ -95,7 +97,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         registerFont(TTFont('Arial', 'font/arial.ttf'))
         registerFont(TTFont('Arialbd', 'font/arialbd.ttf'))
-        canvas = Canvas(FILE_NAME, pagesize=A4, bottomup=0)
+        canvas = Canvas(response, pagesize=A4, bottomup=0)
 
         x = 50
         y = 50
@@ -113,9 +115,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             y += delta
 
         canvas.save()
-
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'filename={}'.format(FILE_NAME)
         return response
 
     def add_to(self, model, user, pk):
