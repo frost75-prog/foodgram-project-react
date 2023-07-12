@@ -3,6 +3,7 @@ from django.core.validators import (MinValueValidator, RegexValidator,
                                     validate_unicode_slug)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from decimal import Decimal
 
 from foodgram.settings import MAX_LENGTH_INGREDIENTFIELDS, REGEX_COLOR_TAG
