@@ -1,3 +1,4 @@
+from decimal import Decimal
 from datetime import datetime
 
 from django.http import HttpResponse
@@ -85,10 +86,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             f'Список покупок для: {request.user.get_full_name()}',
             f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}'
         ]
-        shopping_list_body = [
-            ' - {ingredient__name} ({ingredient__measurement_unit})'
-            ' - {amount}'.format(**ingredient) for ingredient in ingredients
-        ]
+        shopping_list_body = []
+        for ingredient in ingredients:
+            ingredient['amount'] = Decimal(ingredient['amount']).normalize()
+            shopping_list_body.append(
+                ' - {ingredient__name} ({ingredient__measurement_unit})'
+                ' - {amount}'.format(**ingredient))
+
         registerFont(TTFont('Arial', 'arial.ttf'))
         canvas = Canvas(FILE_NAME, pagesize=A4, bottomup=0)
 
