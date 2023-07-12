@@ -93,14 +93,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 ' - {ingredient__name} ({ingredient__measurement_unit})'
                 ' - {amount}'.format(**ingredient))
 
-        registerFont(TTFont('Arial', 'arial.ttf'))
+        registerFont(TTFont('Arial', 'font/arial.ttf'))
+        registerFont(TTFont('Arialbd', 'font/arialbd.ttf'))
         canvas = Canvas(FILE_NAME, pagesize=A4, bottomup=0)
 
         x = 50
         y = 50
         delta = 20
 
-        canvas.setFont('Arial', 16)
+        canvas.setFont('Arialbd', 16)
         for string in shopping_list_title:
             canvas.drawString(x, y, string)
             y += delta
