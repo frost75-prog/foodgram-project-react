@@ -1,7 +1,7 @@
-from decimal import Decimal
 from datetime import datetime
+import io
 
-from django.http import HttpResponse
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -82,23 +82,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'errors': 'В Корзине отсутствуют рецепты'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{FILE_NAME}"'
         shopping_list_title = [
             f'Список покупок для: {request.user.get_full_name()}',
             f'Дата: {datetime.now().strftime("%A, %d-%m-%Y")}'
         ]
         shopping_list_body = []
         for ingredient in ingredients:
-            ingredient['amount'] = Decimal(ingredient['amount']).normalize()
+            s = str(ingredient['amount'])
+            ingredient['amount'] = s.rstrip('0').rstrip('.') if '.' in s else s
             shopping_list_body.append(
                 ' - {ingredient__name} ({ingredient__measurement_unit})'
                 ' - {amount}'.format(**ingredient))
 
         registerFont(TTFont('Arial', 'font/arial.ttf'))
         registerFont(TTFont('Arialbd', 'font/arialbd.ttf'))
-        canvas = Canvas(response, pagesize=A4, bottomup=0)
-
+        buffer = io.BytesIO()
+        canvas = Canvas(buffer, pagesize=A4, bottomup=0)
         x = 50
         y = 50
         delta = 20
@@ -113,9 +112,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         for string in shopping_list_body:
             canvas.drawString(x, y, string)
             y += delta
-
+        canvas.showPage()
         canvas.save()
-        return response
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=FILE_NAME)
 
     def add_to(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():
