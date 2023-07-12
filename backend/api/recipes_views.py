@@ -112,10 +112,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             canvas.drawString(x, y, string)
             y += delta
 
-        file = HttpResponse(canvas.save(), content_type='application/pdf;')
-        file['Content-Disposition'] = f'inline; filename={FILE_NAME}'
-        file['Content-Transfer-Encoding'] = 'binary'
-        return file
+        canvas.save()
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'filename={}'.format(FILE_NAME)
+        return response
 
     def add_to(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():
